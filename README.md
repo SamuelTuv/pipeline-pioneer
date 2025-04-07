@@ -1,2 +1,2 @@
-# pipeline-pioneer
-Journey to create a pipeline computer on a FPGA Basys3
+# Pipeline Pioneer
+Welcome to my journey to create a pipeline computer on a FPGA Basys3!

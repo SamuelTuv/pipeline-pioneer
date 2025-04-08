@@ -1,0 +1,27 @@
+# Ignore generated directories
+project.cache/
+project.hw/
+project.ip_user_files/
+project.sim/
+
+# Ignore project files
+project.xpr
+
+# Ignore other common files
+*.log
+*.vcd
+*.out
+*.jou
+*.wdb
+*.xml
+*.tmp
+*.bak
+*.swp
+*.dcp
+*.bit
+*.bin
+
+# Do not ignore Verilog and XDC files
+!*.v
+!*.xdc
+

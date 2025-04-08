@@ -11,7 +11,8 @@
 
 
 module central(
-
+    input clk
+    
     );
 endmodule
 

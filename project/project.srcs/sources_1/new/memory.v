@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module memory(
+module memory_module(
     input wire clk,
     input wire reset,
     input wire write_enable,

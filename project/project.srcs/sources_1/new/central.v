@@ -59,7 +59,7 @@ module central(
 endmodule
 
 
-module pc (
+module pc_module (
     input wire clk,
     input wire reset,
     input wire jmp1, // The signal which is sent in IR1 to jump
@@ -101,3 +101,28 @@ module pc (
 
 endmodule
 
+module ir_module (
+    input wire clk,
+    input wire reset,
+    input wire [31:0]ir0,
+    output reg [31:0] ir1,
+    output reg [31:0] ir4
+    );
+
+    reg [31:0] ir2;
+    reg [31:0] ir3;
+    
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            ir1 <= 32'b0; 
+            ir2 <= 32'b0; 
+            ir3 <= 32'b0;
+            ir4 <= 32'b0;
+        end else begin
+            ir1 <= ir0; // Load instruction into IR
+            ir2 <= ir1;
+            ir3 <= ir2;
+            ir4 <= ir3;
+        end
+    end
+endmodule

@@ -20,8 +20,8 @@ module testbench;
 
   // Instantiate the design under test (DUT)
   central dut (
-    .clk(clk)
-    //.reset(reset)
+    .clk(clk),
+    .reset(reset)
     // Add other ports as needed
   );
 

@@ -14,9 +14,14 @@ module memory_module(
     input wire clk,
     input wire reset,
     input wire write_enable,
+    
     input wire [15:0] write_addr, // only uses 8192 addresses yet so 12:0 is what is needed. 
     input wire [31:0] write_data,
-    input wire [15:0] read_addr, // only uses 8192 addresses yet so 12:0 is what is needed. 
+    
+    input wire [15:0] read_instr_addr, // only uses 8192 addresses yet so 12:0 is what is needed. 
+    output reg [31:0] read_instr,
+    
+    input wire [15:0] read_data_addr, // only uses 8192 addresses yet so 12:0 is what is needed. 
     output reg [31:0] read_data
     );
     
@@ -46,6 +51,6 @@ module memory_module(
             end
         end 
             
-        read_data <= memory_array[read_addr[15:2]];
+        read_data <= memory_array[read_data_addr[15:2]];
         end
 endmodule

@@ -17,12 +17,39 @@ module central(
 
     );
     
-    wire write_enable = 1'b0;
-    wire [15:0] write_addr = 16'b0;
-    wire [31:0] write_data = 16'b0;
-    wire [15:0] read_addr = 32'b0;
-    wire [31:0] read_data = 32'b0;
+    // Memory 
+    wire write_enable;
+    wire [15:0] write_addr;
+    wire [31:0] write_data;
+    wire [15:0] read_instr_addr;
+    wire [31:0] read_instr;
+    wire [15:0] read_data_addr;
+    wire [31:0] read_data;
+    
+    // PC
     wire [31:0] pc; // Declare pc as a wire
+    
+    // Instruction registers
+    wire [31:0] ir0;
+    assign ir0 = read_instr;
+    reg [31:0] ir1;
+    reg [31:0] ir2;
+    reg [31:0] ir3;
+    reg [31:0] ir4;
+    
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            ir1 <= 32'b0; 
+            ir2 <= 32'b0; 
+            ir3 <= 32'b0;
+            ir4 <= 32'b0;
+        end else begin
+            ir1 <= ir0; // Load instruction into IR
+            ir2 <= ir1;
+            ir3 <= ir2;
+            ir4 <= ir3;
+        end
+    end
 
         
     // Instantiate the memory module
@@ -30,9 +57,14 @@ module central(
         .clk(clk),
         .reset(reset),
         .write_enable(write_enable),
+        
         .write_addr(write_addr),
         .write_data(write_data),
-        .read_addr(read_addr),
+        
+        .read_instr_addr(read_instr_addr),
+        .read_instr(read_instr),
+        
+        .read_data_addr(read_data_addr),
         .read_data(read_data)
     );
     
@@ -45,6 +77,16 @@ module central(
         .pc(pc) // Output PC to LEDs
     );
     
+    /*
+    // Instantiate the ALU module
+       alu_module alu_inst (
+           .clk(clk),
+           .reset(reset),
+           .input_a(32'b0), // Placeholder for input A
+           .input_b(32'b0), // Placeholder for input B
+           .out(32'b0) // Placeholder for output of ALU
+       );
+    */
     
     // Use an always block to assign pc value to led
     always @(posedge clk or posedge reset) begin
@@ -99,30 +141,4 @@ module pc_module (
         end
     end    
 
-endmodule
-
-module ir_module (
-    input wire clk,
-    input wire reset,
-    input wire [31:0]ir0,
-    output reg [31:0] ir1,
-    output reg [31:0] ir4
-    );
-
-    reg [31:0] ir2;
-    reg [31:0] ir3;
-    
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            ir1 <= 32'b0; 
-            ir2 <= 32'b0; 
-            ir3 <= 32'b0;
-            ir4 <= 32'b0;
-        end else begin
-            ir1 <= ir0; // Load instruction into IR
-            ir2 <= ir1;
-            ir3 <= ir2;
-            ir4 <= ir3;
-        end
-    end
 endmodule

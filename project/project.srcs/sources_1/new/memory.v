@@ -25,7 +25,9 @@ module memory_module(
     output reg [31:0] read_data
     );
     
-    reg [31:0] memory_array [0:255];
+    
+     (* ram_style = "block" *) reg [31:0] memory_array [0:255];
+
     
     integer i;
 
@@ -42,15 +44,16 @@ module memory_module(
     end
 
     
-    always @(posedge clk or posedge reset) begin
+    always @(posedge clk) begin // NOTE: Doesnt depend on reset, makes it synchronous. 
         if (reset) begin
             read_data <= 32'b0; //
-        end else begin
-            if (write_enable) begin
-                memory_array[write_addr[15:2]] <= write_data;
-            end
-        end 
-            
-        read_data <= memory_array[read_data_addr[15:2]];
+            read_instr <=32'b0;
+        end else if (write_enable) begin
+            memory_array[write_addr[15:2]] <= write_data;
         end
+        read_data <= memory_array[read_data_addr[15:2]];
+        read_instr <= memory_array[read_instr_addr[15:2]];
+        end
+        
+            
 endmodule

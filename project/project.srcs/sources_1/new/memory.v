@@ -44,16 +44,20 @@ module memory_module(
     end
 
     
-    always @(posedge clk) begin // NOTE: Doesnt depend on reset, makes it synchronous. 
+    always @(posedge clk) begin
+    
         if (reset) begin
-            read_data <= 32'b0; //
-            read_instr <=32'b0;
-        end else if (write_enable) begin
-            memory_array[write_addr[15:2]] <= write_data;
+            read_data <= 32'h00000000;
+            read_instr <=32'h00000000;
+        end else begin
+
+            if (write_enable) begin
+                memory_array[write_addr[15:2]] <= write_data;
+            end
+            read_data <= memory_array[read_data_addr[15:2]];
+            read_instr <= memory_array[read_instr_addr[15:2]];
         end
-        read_data <= memory_array[read_data_addr[15:2]];
-        read_instr <= memory_array[read_instr_addr[15:2]];
-        end
+     end
         
             
 endmodule

@@ -10,20 +10,23 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
+
 module central(
     input wire clk,
     input wire reset,
-    output reg [15:0] led
+    output reg [15:0] led,
+    input wire  [31:0] test_addr,
+    output reg [31:0] test_reg
 
     );
     
     // Memory 
-    wire write_enable;
-    wire [15:0] write_addr;
-    wire [31:0] write_data;
-    wire [15:0] read_instr_addr;
+    reg write_enable;
+    reg [15:0] write_addr;
+    reg [31:0] write_data;
+    reg [15:0] read_instr_addr;
     wire [31:0] read_instr;
-    wire [15:0] read_data_addr;
+    reg [15:0] read_data_addr;
     wire [31:0] read_data;
     
     // PC
@@ -36,6 +39,7 @@ module central(
     reg [31:0] ir2;
     reg [31:0] ir3;
     reg [31:0] ir4;
+
     
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -49,6 +53,38 @@ module central(
             ir3 <= ir2;
             ir4 <= ir3;
         end
+
+        
+
+        // Instruction Fetch for risc 5
+        case (ir1[6:0])
+            7'b0000011: begin // Load instruction
+                write_enable <= 1'b0; // Disable write
+                read_data_addr <= test_addr; // Read address from instruction
+            end
+            
+            7'b0100011: begin // Store instruction
+                write_enable <= 1'b1; // Enable write
+                write_addr <= ir1[15:0]; // Write address from instruction
+                write_data <= ir1[31:16]; // Write data from instruction
+            end
+            
+            default: begin
+                write_enable <= 1'b0; // Default to no write
+            end
+        endcase
+        
+
+        case (ir2[6:0])
+            7'b0000011: begin // Load instruction
+                test_reg <= read_data; // Load data into test register
+            end
+            
+            default: begin
+                //test_reg <= 32'b0; // Default to zero
+            end
+        endcase
+
     end
 
         
@@ -67,6 +103,14 @@ module central(
         .read_data_addr(read_data_addr),
         .read_data(read_data)
     );
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            read_instr_addr <= 16'b0; // Reset instruction address to 0
+        end else begin
+            read_instr_addr <= pc[15:0]; // Assign PC value to instruction address
+        end
+    end
     
     // Instantiate the PC module
     pc_module pc_inst (
@@ -79,23 +123,14 @@ module central(
     
     /*
     // Instantiate the ALU module
-       alu_module alu_inst (
-           .clk(clk),
-           .reset(reset),
-           .input_a(32'b0), // Placeholder for input A
-           .input_b(32'b0), // Placeholder for input B
-           .out(32'b0) // Placeholder for output of ALU
-       );
+    alu_module alu_inst (
+        .clk(clk),
+        .reset(reset),
+        .input_a(32'b0), // Placeholder for input A
+        .input_b(32'b0), // Placeholder for input B
+        .out(32'b0) // Placeholder for output of ALU
+    );
     */
-    
-    // Use an always block to assign pc value to led
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            led <= 16'b0; // Reset LEDs to 0
-        end else begin
-            led <= pc[15:0]; // Assign PC value to LEDs
-        end
-    end
 
 
 endmodule
@@ -114,7 +149,7 @@ module pc_module (
     reg [31:0] pc2; // Intermediate PC register
     reg jmp2; // The signal which is sent in IR2 to jump next cycle. 
 
-    always @(posedge clk or posedge reset) begin
+    always @(posedge clk) begin
         if (reset) begin
             pc <= 32'h0; // Reset PC to 0
             pc1 <= 32'h0; // Reset PC1 to 0

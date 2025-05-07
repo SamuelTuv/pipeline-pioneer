@@ -17,11 +17,15 @@ module testbench;
   // Signals
   reg clk;
   reg reset;
+  wire [31:0] test_reg;
+  reg [31:0] test_addr;
 
   // Instantiate the design under test (DUT)
   central dut (
     .clk(clk),
-    .reset(reset)
+    .reset(reset),
+    .test_reg(test_reg),
+    .test_addr(test_addr)
     // Add other ports as needed
   );
 
@@ -35,6 +39,7 @@ module testbench;
   initial begin
     // Initialize signals
     reset = 1;
+    test_addr = 32;
     #20 reset = 0; // Deassert reset after 20 time units
 
     // Add your test cases here
@@ -43,7 +48,7 @@ module testbench;
     // Apply other stimulus as needed
 
     // Finish simulation
-    #1000 $finish; // End simulation after 1000 time units
+    # 1000 $finish; // End simulation after 1000 time units
   end
 
 endmodule

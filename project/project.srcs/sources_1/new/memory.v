@@ -34,13 +34,20 @@ module memory_module(
     // Initial program memory
     initial begin
         // Example program data
-        memory_array[0] = 32'h00000001;
-        memory_array[1] = 32'h00000002;
-        memory_array[2] = 32'h00000003;
+        memory_array[0] = 32'b0000000_00000_00101_010_00001_0000011;
+        memory_array[1] = 32'h00000000;
+        memory_array[2] = 32'h00000000;
+        memory_array[3] = 32'h00000000;
+        memory_array[4] = 32'h00000000;
+        memory_array[5] = 32'h00000000;
+        memory_array[6] = 32'h00000000;
+        memory_array[7] = 32'h00000000;
+        memory_array[8] = 32'h00000069;
 
-        for (i = 3; i < 255; i = i + 1) begin
+        for (i = 9; i < 255; i = i + 1) begin
             memory_array[i] <= 32'b0;
         end
+        memory_array[4] = 32'h00000069;
     end
 
     

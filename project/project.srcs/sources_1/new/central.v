@@ -27,11 +27,14 @@ module central(
     reg [15:0] read_instr_addr;
     wire [31:0] read_instr;
     reg [15:0] read_data_addr;
-    wire [31:0] read_data;
+    //wire [31:0] read_data; read data is namechanged to z4
     
     // PC
     wire [31:0] pc; // Declare pc as a wire
+
+    // ALU
     
+
     // Instruction registers
     wire [31:0] ir0;
     assign ir0 = read_instr;
@@ -39,6 +42,20 @@ module central(
     reg [31:0] ir2;
     reg [31:0] ir3;
     reg [31:0] ir4;
+
+    // Intermediate registers
+    reg [31:0] im2; // Immediate value for load instruction, alternate left input to ALU
+    reg [31:0] a2; //Alternative right input to ALU
+    reg [31:0] b2; //Alternative left input to ALU
+    reg [31:0] d3; //Result of ALU
+    reg [31:0] d4;
+    reg [31:0] z3; 
+    wire [31:0] z4; //output of Memory
+
+    // General purpose registers
+    reg [31:0] gpr [0:31]; // 32 general purpose registers
+    
+    wire [11:0] imm_s = {ir1[31:25], ir1[11:7]}; // Immediate value for store instruction
 
     
     always @(posedge clk or posedge reset) begin
@@ -55,19 +72,50 @@ module central(
         end
 
         
-
-        // Instruction Fetch for risc 5
         case (ir1[6:0])
             7'b0000011: begin // Load instruction
+                a2 <= gpr[ir1[19:15]]; // Load data from register
+                im2 <= ir1[31:20]; // Load immediate value
+            end
+            
+            default: begin
+                //test_reg <= 32'b0; // Default to zero
+            end
+        endcase
+
+        
+        case (ir2[6:0])
+            7'b0000011: begin // Load instruction
+                //add a2 and im2 to get the address
+                d3 <= a2 + im2; // Load data from register
+            end
+            
+            default: begin
+                //test_reg <= 32'b0; // Default to zero
+            end
+        endcase
+      
+
+        // Instruction Fetch for risc 5
+        case (ir3[6:0])
+            7'b0000011: begin // Load instruction
                 write_enable <= 1'b0; // Disable write
-                read_data_addr <= test_addr; // Read address from instruction
+                read_data_addr <= a2 + im2; // read address is the sum of the immediate and the register
             end
             
             7'b0100011: begin // Store instruction
                 write_enable <= 1'b1; // Enable write
-                write_addr <= ir1[15:0]; // Write address from instruction
-                write_data <= ir1[31:16]; // Write data from instruction
+                write_addr <= gpr[ir3[19:15]] + imm_s; // Write address from instruction
+                write_data <= gpr[ir3[24:20]]; // Write data from instruction
             end
+
+            7'b0110011: begin // R-type instruction
+
+                write_enable <= 1'b0; // Disable write
+                
+
+            end
+
             
             default: begin
                 write_enable <= 1'b0; // Default to no write
@@ -75,9 +123,9 @@ module central(
         endcase
         
 
-        case (ir2[6:0])
+        case (ir4[6:0])
             7'b0000011: begin // Load instruction
-                test_reg <= read_data; // Load data into test register
+                gpr[ir4[24:20]] <= z4; // Load data into test register
             end
             
             default: begin
@@ -101,7 +149,7 @@ module central(
         .read_instr(read_instr),
         
         .read_data_addr(read_data_addr),
-        .read_data(read_data)
+        .read_data(z4)
     );
 
     always @(posedge clk or posedge reset) begin
@@ -121,16 +169,16 @@ module central(
         .pc(pc) // Output PC to LEDs
     );
     
-    /*
+    
     // Instantiate the ALU module
     alu_module alu_inst (
         .clk(clk),
         .reset(reset),
-        .input_a(32'b0), // Placeholder for input A
-        .input_b(32'b0), // Placeholder for input B
-        .out(32'b0) // Placeholder for output of ALU
+        .input_a(input_a), // input A
+        .input_b(input_b), // input B
+        .out(d3) //output of ALU
     );
-    */
+    
 
 
 endmodule
